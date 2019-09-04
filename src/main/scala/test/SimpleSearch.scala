@@ -2,6 +2,8 @@ package test
 
 import java.io.File
 
+import test.utils.Parser
+
 import scala.util.Try
 
 
@@ -17,29 +19,8 @@ object SimpleSearch extends App {
 object Program {
 
   import scala.io.StdIn.readLine
+  import test.models._
 
-  type InvertedIndex = Map[String, Set[File]]
-
-  sealed trait ReadFileError
-
-  case object MissingPathArg extends ReadFileError
-  case class NotDirectory(error: String) extends ReadFileError
-  case class FileNotFound(t: Throwable) extends ReadFileError
-
-  // TODO: Implement this
-  case class Index(invertedIndex: InvertedIndex = Map.empty)
-
-  class Parser {
-
-    val WORD = "\\w+".r
-
-    def parseToWords(text: String) =
-      WORD.findAllIn(text).map(_.toLowerCase)
-  }
-
-  object Parser {
-    def apply() = new Parser
-  }
 
   // TODO: Index all files in the directory
   def index(file: File): Index = {
@@ -89,6 +70,7 @@ object Program {
           println(s"$word : ${ names.mkString(", ") }")
         }
       }
+
       iterate(indexedFiles)
     }
   }
