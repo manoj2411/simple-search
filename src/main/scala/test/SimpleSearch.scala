@@ -17,11 +17,12 @@ object SimpleSearch extends App {
 }
 
 object Program {
-
   import scala.io.StdIn.readLine
   import test.models._
 
   implicit val parser: Parser = Parser()
+  val PROMPT = "search> "
+  val TERMINATOR = ":quit"
 
   def index(sourceDir: File): Index = {
     val _index = Index.indexAllFilesInDir(sourceDir)
@@ -44,32 +45,12 @@ object Program {
   }
 
   def iterate(index: Index): Unit = {
-    print(s"search> ")
+    print(PROMPT)
     val searchString = readLine()
-    if (searchString != ":quit") {
-      // TODO: Make it print the ranking of each file and its corresponding score
+    if (searchString != TERMINATOR) {
       val words = parser.parseToWords(searchString).toList
       Search(index, words).result.foreach(println)
       iterate(index)
     }
-  }
-
-  class Search(index: Index, words: List[String]) {
-
-    def result = {
-      val wordsMapping = getWordFilesMapping
-      val files = wordsMapping.flatMap(_._2).groupBy(identity).mapValues(_.size)
-      files
-    }
-
-    private val getWordFilesMapping = words.flatMap { word =>
-      index.invertedIndex
-        .get(word)
-        .map( f => (word, f.map(_.getName).toList))
-    }
-  }
-
-  object Search {
-    def apply(index: Index, words: List[String]) = new Search(index, words)
   }
 }
