@@ -9,7 +9,7 @@ import scala.util.{Failure, Success, Try}
 
 object SimpleSearch extends App {
   Program
-    .readFile(args = Array("/Users/mkumar/tmp/"))
+    .readFile(args)
     .fold(
       println,
       file => Program.iterate(Program.index(file))
@@ -23,6 +23,7 @@ object Program {
   implicit val parser: Parser = Parser()
   val PROMPT = "search> "
   val TERMINATOR = ":quit"
+  val NO_MATCH = "no matches found"
 
   def index(sourceDir: File): Index = {
     val _index = Index.indexAllFilesInDir(sourceDir)
@@ -49,7 +50,9 @@ object Program {
     val searchString = readLine()
     if (searchString != TERMINATOR) {
       val words = parser.parseToWords(searchString).toList
-      Search(index, words).result.foreach(println)
+      val result = Search(index, words).result
+      if (result.nonEmpty) result.foreach(println)
+      else println(NO_MATCH)
       iterate(index)
     }
   }
